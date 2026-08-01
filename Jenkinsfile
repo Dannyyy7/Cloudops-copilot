@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/YOUR_GITHUB_USERNAME/cloudops-copilot.git'
+                git branch: 'main', url: 'https://github.com/Dannyyy7/Cloudops-copilot.git'
             }
         }
 
