@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        // Fetches the secret from Jenkins Credentials manager (ID: hf-token-secret)
         HF_TOKEN = credentials('hf-token-secret')
         IMAGE_NAME = 'cloudops-copilot-app'
         CONTAINER_NAME = 'cloudops-app-container'
@@ -11,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/Dannyyy7/Cloudops-copilot.git'
+                git branch: 'main', url: 'https://github.com/YOUR_GITHUB_USERNAME/cloudops-copilot.git'
             }
         }
 
@@ -46,8 +45,12 @@ pipeline {
     }
 
     post {
+        always {
+            // Clean up dangling images and build cache after every build
+            sh "docker image prune -f"
+        }
         success {
-            echo "Deployment successful! App is running at http://<EC2_PUBLIC_IP>:8501"
+            echo "Deployment successful! App is running at http://3.104.220.253:8501"
         }
         failure {
             echo "Pipeline failed. Check build logs for details."
