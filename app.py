@@ -1,16 +1,18 @@
+import os
 import streamlit as st
 from openai import OpenAI
 from dotenv import load_dotenv
-import os
 
-# Load environment variables
+# Load environment variables from .env file (if running locally)
 load_dotenv()
 
-# OpenRouter Client
+# Retrieve API key safely
+hf_token = os.getenv("HF_TOKEN")
 
+# Initialize OpenAI Client pointing to Hugging Face Inference Router
 client = OpenAI(
     base_url="https://router.huggingface.co/v1",
-    api_key=os.getenv("HF_TOKEN")
+    api_key=hf_token
 )
 
 # Page Config
@@ -44,24 +46,28 @@ generate = st.button("🚀 Generate Infrastructure")
 # Generate Response
 if generate:
 
-    if project_description.strip() == "":
+    if not project_description.strip():
         st.warning("Please enter project requirements.")
 
+    elif not hf_token:
+        st.error("🔑 `HF_TOKEN` environment variable is missing! Please check your Jenkins credentials or .env file.")
+
     else:
+        try:
+            with st.spinner("🤖 AI is generating your DevOps project..."):
 
-        with st.spinner("🤖 AI is generating your DevOps project..."):
-
-            response = client.chat.completions.create(
-                model="Qwen/Qwen2.5-Coder-32B-Instruct",
-                max_tokens=800,
-                temperature=0.3,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": """
+                response = client.chat.completions.create(
+                    # Added provider routing suffix so HF Router resolves Qwen properly
+                    model="Qwen/Qwen2.5-Coder-32B-Instruct:auto",
+                    max_tokens=1500,  # Increased token limit so complete code isn't truncated
+                    temperature=0.3,
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": """
 You are a Senior DevOps Engineer.
 
-Generate complete production-ready DevOps files.
+Generate complete production-ready DevOps files based on the user requirements.
 
 Return the output in the following order:
 
@@ -71,22 +77,23 @@ Return the output in the following order:
 4. README.md
 5. Deployment Steps
 
-Use markdown code blocks.
-
+Use markdown code blocks for all files.
 Do not explain unnecessary theory.
-
 Write clean and professional code.
 """
-                    },
-                    {
-                        "role": "user",
-                        "content": project_description
-                    }
-                ]
-            )
+                        },
+                        {
+                            "role": "user",
+                            "content": project_description
+                        }
+                    ]
+                )
 
-        st.success("✅ Infrastructure Generated Successfully!")
+            st.success("✅ Infrastructure Generated Successfully!")
 
-        st.subheader("Generated Output")
+            st.subheader("Generated Output")
 
-        st.markdown(response.choices[0].message.content)
+            st.markdown(response.choices[0].message.content)
+
+        except Exception as e:
+            st.error(f"An error occurred while generating the output: {str(e)}")
