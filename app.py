@@ -58,7 +58,7 @@ if generate:
 
                 response = client.chat.completions.create(
                     # Added provider routing suffix so HF Router resolves Qwen properly
-                    model="Qwen/Qwen2.5-Coder-32B-Instruct:auto",
+                    model="Qwen/Qwen2.5-Coder-32B-Instruct",
                     max_tokens=1500,  # Increased token limit so complete code isn't truncated
                     temperature=0.3,
                     messages=[
