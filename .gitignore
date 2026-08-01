@@ -1,0 +1,17 @@
+# Environment variables / Secret API keys (CRITICAL)
+.env
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Terraform state and local configuration files
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
